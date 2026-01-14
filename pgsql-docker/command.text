@@ -1,0 +1,6 @@
+docker compose run --rm pgsql
+psql -U 6610301009 -h 172.16.2.117 -d db_6610301009 -W
+
+sql
+\dt show all table
+\d table_name show inside table
