@@ -114,10 +114,13 @@ ORDER BY
     t.table_name ASC;
 
 -- Output
-
-
-
-
+ table_name | total_size | index_size | table_size | num_rows 
+------------+------------+------------+------------+----------
+ account    | 32 kB      | 16 kB      | 8192 bytes |      100
+ post       | 29 MB      | 2208 kB    | 27 MB      |       -1
+ thread     | 168 kB     | 40 kB      | 96 kB      |     1000
+ words      | 10024 kB   | 0 bytes    | 9984 kB    |   235976
+(4 rows)
 
 ```
 
@@ -131,7 +134,17 @@ WHERE account_id = 1
 ;
 
 -- Output
-
+                                                     QUERY PLAN
+----------------------------------------------------------------------------------------
+ Gather  (cost=1000.00..6417.75 rows=1724 width=53) (actual time=0.946..43.250 rows=543 loops=1)
+   Workers Planned: 2
+   Workers Launched: 2
+   ->  Parallel Seq Scan on post  (cost=0.00..5245.35 rows=718 width=53) (actual time=0.014..8.444 rows=181 loops=3)
+         Filter: (account_id = 1)
+         Rows Removed by Filter: 33152
+ Planning Time: 0.156 ms
+ Execution Time: 43.333 ms
+(8 rows)
 
 
 ```
@@ -144,9 +157,15 @@ SELECT COUNT(*) FROM post
 WHERE account_id = 1;
 
 -- Output
-
-
-
+                                                 QUERY PLAN
+------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=4700.45..4700.46 rows=1 width=8) (actual time=20.905..20.907 rows=1 loops=1)
+   ->  Seq Scan on post  (cost=0.00..4699.00 rows=580 width=0) (actual time=0.027..20.829 rows=543 loops=1)
+         Filter: (account_id = 1)
+         Rows Removed by Filter: 99457
+ Planning Time: 0.376 ms
+ Execution Time: 20.949 ms
+(6 rows)
 
 
 ```
@@ -161,7 +180,14 @@ WHERE thread_id = 1
 AND visible = TRUE;
 
 -- Output
-
+                                              QUERY PLAN
+------------------------------------------------------------------------------------------------------
+ Seq Scan on post  (cost=0.00..4699.00 rows=89 width=235) (actual time=0.980..32.901 rows=53 loops=1)
+   Filter: (visible AND (thread_id = 1))
+   Rows Removed by Filter: 99947
+ Planning Time: 0.197 ms
+ Execution Time: 32.936 ms
+(5 rows)
 
 ```
 
@@ -176,7 +202,15 @@ WHERE thread_id = 1 AND visible = TRUE AND account_id = 1;
 
 -- Output
  
- 
+                                                QUERY PLAN
+---------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=4949.00..4949.01 rows=1 width=8) (actual time=40.256..40.258 rows=1 loops=1)
+   ->  Seq Scan on post  (cost=0.00..4949.00 rows=1 width=0) (actual time=23.292..40.245 rows=1 loops=1)
+         Filter: (visible AND (thread_id = 1) AND (account_id = 1))
+         Rows Removed by Filter: 99999
+ Planning Time: 0.203 ms
+ Execution Time: 40.321 ms
+(6 rows)
 
 ```
 
@@ -192,7 +226,22 @@ ORDER BY created;
 
 -- Output
 
-
+                                                       QUERY PLAN
+-------------------------------------------------------------------------------------------------------------------------
+ Gather Merge  (cost=5282.37..5282.60 rows=2 width=235) (actual time=37.712..42.359 rows=5 loops=1)
+   Workers Planned: 2
+   Workers Launched: 2
+   ->  Sort  (cost=4282.34..4282.35 rows=1 width=235) (actual time=10.317..10.318 rows=2 loops=3)
+         Sort Key: created
+         Sort Method: quicksort  Memory: 26kB
+         Worker 0:  Sort Method: quicksort  Memory: 25kB
+         Worker 1:  Sort Method: quicksort  Memory: 25kB
+         ->  Parallel Seq Scan on post  (cost=0.00..4282.33 rows=1 width=235) (actual time=3.908..10.249 rows=2 loops=3)
+               Filter: (visible AND (thread_id = 1) AND (created > (now() - '1 mon'::interval)))
+               Rows Removed by Filter: 33332
+ Planning Time: 0.275 ms
+ Execution Time: 42.422 ms
+(13 rows)
 
 
 ```
