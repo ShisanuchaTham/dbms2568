@@ -260,9 +260,16 @@ WHERE account_id = 1
 ;
 
 -- Output
-
-
-
+                                                           QUERY PLAN
+---------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on post  (cost=8.45..1415.71 rows=537 width=225) (actual time=0.376..2.189 rows=499 loops=1)
+   Recheck Cond: (account_id = 1)
+   Heap Blocks: exact=467
+   ->  Bitmap Index Scan on post_account_id_idx1  (cost=0.00..8.32 rows=537 width=0) (actual time=0.166..0.167 rows=499 loops=1)
+         Index Cond: (account_id = 1)
+ Planning Time: 0.350 ms
+ Execution Time: 2.278 ms
+(7 rows)
 
 ```
 
@@ -274,7 +281,15 @@ SELECT COUNT(*) FROM post
 WHERE account_id = 1;
 
 -- Output
-
+                                                                QUERY PLAN
+-------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=15.03..15.04 rows=1 width=8) (actual time=0.331..0.333 rows=1 loops=1)
+   ->  Index Only Scan using post_account_id_idx1 on post  (cost=0.29..13.69 rows=537 width=0) (actual time=0.092..0.253 rows=499 loops=1)
+         Index Cond: (account_id = 1)
+         Heap Fetches: 0
+ Planning Time: 0.174 ms
+ Execution Time: 0.381 ms
+(6 rows)
 
 
 
@@ -294,8 +309,16 @@ WHERE thread_id = 1
 AND visible = TRUE;
 
 -- Output
-
-
+ Bitmap Heap Scan on post  (cost=5.05..343.81 rows=88 width=225) (actual time=0.106..0.275 rows=46 loops=1)
+   Recheck Cond: (thread_id = 1)
+   Filter: visible
+   Rows Removed by Filter: 11
+   Heap Blocks: exact=57
+   ->  Bitmap Index Scan on post_thread_id_idx  (cost=0.00..5.03 rows=98 width=0) (actual time=0.067..0.068 rows=57 loops=1)
+         Index Cond: (thread_id = 1)
+ Planning Time: 0.397 ms
+ Execution Time: 0.342 ms
+(9 rows)
 
 
 
@@ -310,8 +333,20 @@ FROM post
 WHERE thread_id = 1 AND visible = TRUE AND account_id = 1;
 
 -- Output
-
-
+                                                                QUERY PLAN
+---------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=17.62..17.63 rows=1 width=8) (actual time=0.388..0.391 rows=1 loops=1)
+   ->  Bitmap Heap Scan on post  (cost=13.60..17.61 rows=1 width=0) (actual time=0.383..0.384 rows=0 loops=1)
+         Recheck Cond: ((thread_id = 1) AND (account_id = 1))
+         Filter: visible
+         ->  BitmapAnd  (cost=13.60..13.60 rows=1 width=0) (actual time=0.375..0.376 rows=0 loops=1)
+               ->  Bitmap Index Scan on post_thread_id_idx  (cost=0.00..5.03 rows=98 width=0) (actual time=0.176..0.176 rows=57 loops=1)
+                     Index Cond: (thread_id = 1)
+               ->  Bitmap Index Scan on post_account_id_idx1  (cost=0.00..8.32 rows=537 width=0) (actual time=0.187..0.187 rows=499 loops=1)
+                     Index Cond: (account_id = 1)
+ Planning Time: 0.223 ms
+ Execution Time: 0.448 ms
+(11 rows)
 
 
 ```
@@ -342,7 +377,20 @@ FROM post
 WHERE thread_id = 1 AND visible = TRUE AND account_id = 1;
 
 -- Output
-
+                                                                 QUERY PLAN
+-----------------------------------------------------------------------------------------
+ Aggregate  (cost=17.62..17.63 rows=1 width=8) (actual time=0.248..0.251 rows=1 loops=1)
+   ->  Bitmap Heap Scan on post  (cost=13.60..17.61 rows=1 width=0) (actual time=0.242..0.244 rows=0 loops=1)
+         Recheck Cond: ((thread_id = 1) AND (account_id = 1))
+         Filter: visible
+         ->  BitmapAnd  (cost=13.60..13.60 rows=1 width=0) (actual time=0.234..0.236 rows=0 loops=1)
+               ->  Bitmap Index Scan on post_thread_id_idx  (cost=0.00..5.03 rows=98 width=0) (actual time=0.032..0.032 rows=57 loops=1)
+                     Index Cond: (thread_id = 1)
+               ->  Bitmap Index Scan on post_account_id_idx1  (cost=0.00..8.32 rows=537 width=0) (actual time=0.191..0.191 rows=499 loops=1)
+                     Index Cond: (account_id = 1)
+ Planning Time: 0.212 ms
+ Execution Time: 0.303 ms
+(11 rows)
 
 
 
@@ -359,9 +407,15 @@ FROM post
 WHERE thread_id = 1 AND visible = TRUE AND account_id = 1;
 
 -- Output
-
-
-
+                                                                      QUERY PLAN
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=4.44..4.45 rows=1 width=8) (actual time=0.076..0.077 rows=1 loops=1)
+   ->  Index Only Scan using post_thread_id_visible_account_id_idx on post  (cost=0.42..4.44 rows=1 width=0) (actual time=0.071..0.071 rows=0 loops=1)
+         Index Cond: ((thread_id = 1) AND (visible = true) AND (account_id = 1))
+         Heap Fetches: 0
+ Planning Time: 0.503 ms
+ Execution Time: 0.123 ms
+(6 rows)
 
 
 ```
