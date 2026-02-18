@@ -24,6 +24,21 @@ docker run --rm --name pg_30_lab \
     -c max_connections=10 \
     -c work_mem=16MB \
     -c shared_buffers=128MB
+
+docker run --rm --name pg_30_lab `
+    --memory="512m" `
+    --memory-swap="512m" `
+    --cpus="2.0" `
+    --volume "${PWD}/DATA:/var/lib/postgresql/data" `
+    --volume "${PWD}/BACKUP:/backup" `
+    --security-opt seccomp=unconfined `
+    -e PGDATA=/var/lib/postgresql/data/pgdata `
+    pg18-512mb `
+    postgres -D /var/lib/postgresql/data/pgdata `
+    -c max_connections=10 `
+    -c work_mem=16MB `
+    -c shared_buffers=128MB
+
 ```
 
 
@@ -91,8 +106,11 @@ Logout from database
 
 ```sh
 pg_dump -U STUDENT -h 172.16.2.117 --no-owner  -v -d dvdrental_master > /backup/dvdrental_master_backup.sql
-```
 
+```
+```
+pg_dump -U 6610301009 -h 172.16.2.117 --no-owner  -v -d dvdrental_master > /backup/dvdrental_master_backup.sql
+```
 Check backup file
 
 ```sh
@@ -148,7 +166,7 @@ dvdrental=#
 
 Insert Actor 
 ```sql
-INSERT INTO actor (first_name, last_name) values ('Your Name', 'Your Last Name');
+INSERT INTO actor (first_name, last_name) values ('Shisanucha', 'Thamsattaya');
 ```
 
 Add you as actor in one of film.
@@ -203,7 +221,7 @@ pg_dump --no-owner --format=plain -v -d dvdrental > /backup/dvdrental_plan.sql
 
 Create database dump file backup with custom format
 ```sh
-pg_dump -U postgres -d dbname --no-owner  -Fc -v -d dvdrental -f /backup/dvdrental_custom.dump
+pg_dump -U postgres --no-owner  -Fc -v -d dvdrental -f /backup/dvdrental_custom.dump
 ```
 
 
@@ -212,6 +230,8 @@ pg_dump -U postgres -d dbname --no-owner  -Fc -v -d dvdrental -f /backup/dvdrent
 Restore with simple sql file.
 ```sh
 psql -U STUDENT -h 172.16.2.117 -d db_STUDENT < /backup/dvdrental_simple.sql
+
+psql -U 6610301009 -h 172.16.2.117 -d db_6610301009 < /backup/dvdrental_simple.sql
 ```
 
 Restore with pg_restore with simple sql
@@ -242,5 +262,9 @@ JOIN actor ON film_actor.actor_id=actor.actor_id AND actor.actor_id=201
 Your Output:
 
 ```
-
+ actor_id | first_name |   last_name    |        last_update         |      title      
+----------+------------+----------------+----------------------------+-----------------
+      201 | Your Name  | Your Last Name | 2026-02-10 15:38:53.750019 | Jaws Harry
+      201 | Your Name  | Your Last Name | 2026-02-10 15:38:53.750019 | Summer Scarface
+(2 rows)
 ```

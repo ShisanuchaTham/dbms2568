@@ -85,6 +85,33 @@ docker run --rm --name pg_30_lab \
     -c work_mem=16MB \
     -c shared_buffers=128MB
 
+
+docker run --rm --name pg_30_lab `
+    --memory="512m" `
+    --memory-swap="512m" `
+    --cpus="2.0" `
+    --volume="${PWD}/DATA:/var/lib/postgresql/data" `
+    --security-opt seccomp=unconfined `
+    pg18-512mb `
+    postgres -D /var/lib/postgresql/data `
+    -c max_connections=30 `
+    -c work_mem=16MB `
+    -c shared_buffers=128MB
+
+docker run --rm --name pg_30_lab `
+    --memory="512m" `
+    --memory-swap="512m" `
+    --cpus="2.0" `
+    --volume="${PWD}/DATA:/var/lib/postgresql/data" `
+    --security-opt seccomp=unconfined `
+    -e PGDATA=/var/lib/postgresql/data/pgdata `
+    pg18-512mb `
+    postgres -D /var/lib/postgresql/data/pgdata `
+    -c max_connections=30 `
+    -c work_mem=16MB `
+    -c shared_buffers=128MB
+
+
 ```
 
 ## Part 3: Configuration & Tuning (The Mission)
